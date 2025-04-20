@@ -15,7 +15,7 @@ public class Race {
 
         while (!raceFinished) {
             clearScreen();
-            System.out.println("==================");
+            System.out.println("=====================");
 
             raceFinished = true;
 
@@ -23,19 +23,20 @@ public class Race {
                 if (!h.hasFallen() && h.getDistanceTravelled() < raceLength) {
                     if (random.nextDouble() < h.getConfidence()) {
                         h.moveForward();
-                    } else if (random.nextDouble() > 0.95) {
+                    }
+                    double fallChance = 0.02 + (h.getConfidence()*0.1);
+                    if(Math.random() < fallChance){
                         h.fall();
                     }
+
                 }
 
                 printHorseLane(h);
 
-                if (!h.hasFallen() && h.getDistanceTravelled() < raceLength) {
-                    raceFinished = false;
-                }
+                
             }
 
-            System.out.println("==================\n");
+            System.out.println("=====================\n");
 
             try {
                 Thread.sleep(300);
