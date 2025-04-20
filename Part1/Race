@@ -21,20 +21,27 @@ public class Race {
 
             for (Horse h : horses) {
                 if (!h.hasFallen() && h.getDistanceTravelled() < raceLength) {
-                    if (random.nextDouble() < h.getConfidence()) {
+                    double moveChance = 0;
+                    if(h.getConfidence() > 0.1){
+                        moveChance = h.getConfidence();
+                    }
+                    else{
+                        moveChance = Math.max(0.05, h.getConfidence());
+                    }
+                    double fallChance = 0.01 + (moveChance * 0.1); 
+            
+                    if (random.nextDouble() < fallChance) {
+                        h.fall();
+                    } else if (random.nextDouble() < moveChance) {
                         h.moveForward();
                     }
-                    double fallChance = 0.02 + (h.getConfidence()*0.1);
-                    if(Math.random() < fallChance){
-                        h.fall();
-                    }
-
+            
+                    raceFinished = false;
                 }
-
+            
                 printHorseLane(h);
-
-                
             }
+            
 
             System.out.println("=====================\n");
 
