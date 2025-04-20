@@ -1,0 +1,90 @@
+import java.util.*;
+
+public class Race {
+    private final List<Horse> horses;
+    private final int raceLength;
+
+    public Race(List<Horse> horses, int raceLength) {
+        this.horses = horses;
+        this.raceLength = raceLength;
+    }
+
+    public void startRace() {
+        boolean raceFinished = false;
+        Random random = new Random();
+
+        while (!raceFinished) {
+            clearScreen();
+            System.out.println("==================");
+
+            raceFinished = true;
+
+            for (Horse h : horses) {
+                if (!h.hasFallen() && h.getDistanceTravelled() < raceLength) {
+                    if (random.nextDouble() < h.getConfidence()) {
+                        h.moveForward();
+                    } else if (random.nextDouble() > 0.95) {
+                        h.fall();
+                    }
+                }
+
+                printHorseLane(h);
+
+                if (!h.hasFallen() && h.getDistanceTravelled() < raceLength) {
+                    raceFinished = false;
+                }
+            }
+
+            System.out.println("==================\n");
+
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        Horse winner = horses.stream()
+                .filter(h -> !h.hasFallen())
+                .max(Comparator.comparingInt(Horse::getDistanceTravelled))
+                .orElse(null);
+
+        if (winner != null) {
+            System.out.println("And the winner is... " + winner.getName() + "!");
+            winner.setConfidence(Math.min(1.0, winner.getConfidence() + 0.05));
+        } else {
+            System.out.println("All horses fell! No winner.");
+        }
+    }
+
+    private void printHorseLane(Horse h) {
+        StringBuilder lane = new StringBuilder("|");
+
+        for (int i = 0; i < raceLength; i++) {
+            if (i == h.getDistanceTravelled() && !h.hasFallen()) {
+                lane.append(h.getSymbol());
+            } else if (h.hasFallen() && i == h.getDistanceTravelled()) {
+                lane.append("X");
+            } else {
+                lane.append(" ");
+            }
+        }
+
+        lane.append("| ").append(h.getName()).append(" (Confidence: ").append(String.format("%.2f", h.getConfidence())).append(")");
+        System.out.println(lane);
+    }
+
+    private void clearScreen() {
+        try {
+            if (System.getProperty("os.name").contains("Windows")) {
+                new ProcessBuilder("cmd", "/c", "cls").inheritIO().start().waitFor();
+            } else {
+                System.out.print("\033[H\033[2J");
+                System.out.flush();
+            }
+        } catch (Exception e) {
+            // If screen clearing fails, just print some newlines
+            System.out.println("\n\n\n\n\n\n\n\n\n\n");
+        }
+    }
+}
