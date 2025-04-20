@@ -1,21 +1,21 @@
 public class Horse {
-    // Fields of class Horse
+    // attributes
     private final String horseName;
     private char horseSymbol;
     private int distance;
     private boolean hasFallen;
     private double horseConfidence;
 
-    // Constructor of class Horse
+    // constructor
     public Horse(char horseSymbol, String horseName, double horseConfidence) {
         this.horseName = horseName;
         this.horseSymbol = horseSymbol;
-        setConfidence(horseConfidence); // Use setter to ensure validation
+        setConfidence(horseConfidence);
         this.distance = 0;
         this.hasFallen = false;
     }
 
-    // Other methods of class Horse
+    // methods
     public void fall() {
         this.hasFallen = true;
     }
@@ -49,6 +49,7 @@ public class Horse {
         this.distance += 1;
     }
 
+    // ensures confidence is between 0 and 1
     public void setConfidence(double newConfidence) {
         if (newConfidence < 0) {
             this.horseConfidence = 0;
