@@ -5,7 +5,7 @@ public class Race {
     private final List<Horse> horses;
     private final int raceLength;
     private final String fallSymbol = "❌";
-    private final int minimumMoveChance = 0.05;
+    private final double minimumMoveChance = 0.05;
 
     // constructor
     public Race(List<Horse> horses, int raceLength) {
