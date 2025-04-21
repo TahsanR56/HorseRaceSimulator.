@@ -5,6 +5,7 @@ public class Race {
     private final List<Horse> horses;
     private final int raceLength;
     private final String fallSymbol = "❌";
+    private final int minimumMoveChance = 0.05;
 
     // constructor
     public Race(List<Horse> horses, int raceLength) {
@@ -33,7 +34,7 @@ public class Race {
                         moveChance = h.getConfidence();
                     }
                     else{
-                        moveChance = Math.max(0.05, h.getConfidence());
+                        moveChance = Math.max(minimumMoveChance, h.getConfidence());
                     }
                     double fallChance = 0.01 + (moveChance * 0.1); 
                     // the horses may fall
