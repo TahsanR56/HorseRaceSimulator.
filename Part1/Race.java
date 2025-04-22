@@ -4,7 +4,7 @@ public class Race {
     // store all horses in a group
     private final List<Horse> horses;
     private final int raceLength;
-    private final String fallSymbol = "❌";
+    private final String fallSymbol = "X";
     private final double minimumMoveChance = 0.05;
 
     // constructor
