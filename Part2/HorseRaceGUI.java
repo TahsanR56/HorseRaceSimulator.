@@ -71,22 +71,41 @@ public class HorseRaceGUI extends JFrame {
 
     private void runTextRace() {
         int trackLength = trackConfigPanel.getTrackLength();
+        String weather = trackConfigPanel.getWeatherCondition();
+        double speedModifier = 1.0;
+        double fallModifier = 1.0;
+    
+        // apply weather effect 
+        switch (weather) {
+            case "Muddy":
+                speedModifier = 0.8;
+                fallModifier = 1.2;
+                break;
+            case "Icy":
+                speedModifier = 0.6;
+                fallModifier = 1.5;
+                break;
+            case "Dry":
+            default:
+                speedModifier = 1.0;
+                fallModifier = 1.0;
+                break;
+        }
+    
         raceArenaPanel.clearDisplay();
-        statisticsPanel.clearStats();
-
         boolean finished = false;
         int timeSteps = 0;
-
+    
         while (!finished) {
             timeSteps++;
             finished = true;
             StringBuilder frame = new StringBuilder();
-
+    
             for (Horse h : horses) {
                 if (!h.hasFallen() && h.getDistanceTravelled() < trackLength) {
-                    double moveChance = h.getConfidence();
-                    double fallChance = 0.02 + (moveChance * 0.1);
-
+                    double moveChance = h.getConfidence() * speedModifier;
+                    double fallChance = (0.02 + (moveChance * 0.1)) * fallModifier;
+    
                     if (Math.random() < fallChance) {
                         h.fall();
                     } else if (Math.random() < moveChance) {
@@ -94,13 +113,14 @@ public class HorseRaceGUI extends JFrame {
                     }
                     finished = false;
                 }
-
+    
+                // build horse lane
                 StringBuilder lane = new StringBuilder("|");
                 for (int i = 0; i < trackLength; i++) {
                     if (i == h.getDistanceTravelled() && !h.hasFallen()) {
                         lane.append(h.getSymbol());
                     } else if (h.hasFallen() && i == h.getDistanceTravelled()) {
-                        lane.append("X");
+                        lane.append("❌");
                     } else {
                         lane.append(" ");
                     }
@@ -108,32 +128,31 @@ public class HorseRaceGUI extends JFrame {
                 lane.append("| ").append(h.getName());
                 frame.append(lane).append("\n");
             }
-
+    
             raceArenaPanel.updateRaceDisplay(frame.toString());
-
             try {
                 Thread.sleep(250);
             } catch (InterruptedException ignored) {}
         }
-
-        // determine winner
+    
+        // declare winner
         Horse winner = horses.stream()
             .filter(h -> !h.hasFallen())
             .max(java.util.Comparator.comparingInt(Horse::getDistanceTravelled))
             .orElse(null);
-
+    
         if (winner != null) {
             JOptionPane.showMessageDialog(this, "Winner: " + winner.getName());
         } else {
             JOptionPane.showMessageDialog(this, "All horses fell! No winner.");
         }
-
-        // update stats
+    
+        statisticsPanel.clearStats();
         for (Horse h : horses) {
             statisticsPanel.showStatsForHorse(h, timeSteps);
         }
-
-        // reset horese
+    
         horses.forEach(Horse::goBackToStart);
     }
+    
 }
