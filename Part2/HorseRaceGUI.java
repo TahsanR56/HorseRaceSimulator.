@@ -1,27 +1,25 @@
 import java.awt.*;
+import java.util.List;
 import javax.swing.*;
 
 public class HorseRaceGUI extends JFrame {
-    // horse list
-    private final java.util.List<Horse> horses = new java.util.ArrayList<>();
+    private final List<Horse> horses = new java.util.ArrayList<>();
 
-    // constants
-    private static final int WINDOW_WIDTH = 1100;
-    private static final int WINDOW_HEIGHT = 600;
+    private static final int WINDOW_WIDTH = 1200;
+    private static final int WINDOW_HEIGHT = 700;
     private static final String WINDOW_TITLE = "Horse Race Simulator";
 
-    // panels
     private final TrackConfigPanel trackConfigPanel;
     private final HorseConfigPanel horseConfigPanel;
     private final RaceArenaPanel raceArenaPanel;
     private final StatisticsPanel statisticsPanel;
+    private final BettingPanel bettingPanel;
 
     public HorseRaceGUI() {
-        // settings window
         setTitle(WINDOW_TITLE);
         setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null); // center the window
+        setLocationRelativeTo(null);
         setLayout(new BorderLayout());
 
         // initialise panels
@@ -29,56 +27,52 @@ public class HorseRaceGUI extends JFrame {
         horseConfigPanel = new HorseConfigPanel();
         raceArenaPanel = new RaceArenaPanel();
         statisticsPanel = new StatisticsPanel();
+        bettingPanel = new BettingPanel();
 
-        // when Add Horse is clicked
+        // left panel: track & horse configuration
+        JPanel leftPanel = new JPanel(new GridLayout(2, 1));
+        leftPanel.add(trackConfigPanel);
+        leftPanel.add(horseConfigPanel);
+
+        // right panel: statistics & betting
+        JPanel rightPanel = new JPanel(new GridLayout(2, 1));
+        rightPanel.add(statisticsPanel);
+        rightPanel.add(bettingPanel);
+
+        // add panels to layout
+        add(leftPanel, BorderLayout.WEST);
+        add(raceArenaPanel, BorderLayout.CENTER);
+        add(rightPanel, BorderLayout.EAST);
+
+        // start button
+        JButton startButton = new JButton("Start Race");
+        startButton.addActionListener(e -> new Thread(this::runTextRace).start());
+        add(startButton, BorderLayout.SOUTH);
+
+        // add horses
         horseConfigPanel.getAddHorseButton().addActionListener(e -> {
             Horse horse = new Horse(
                 horseConfigPanel.getSelectedSymbol().charAt(0),
                 horseConfigPanel.getHorseName(),
-                Math.random() * 0.5 + 0.5 // random confidence
+                Math.random() * 0.5 + 0.5
             );
-
-            // set breed, coat, and equipment
             horse.setBreed(horseConfigPanel.getSelectedBreed());
             horse.setCoatColor(horseConfigPanel.getSelectedCoat());
             horse.setEquipment(horseConfigPanel.getSelectedGear());
 
             horses.add(horse);
             raceArenaPanel.appendRaceLine("Added horse: " + horse.getName());
+            bettingPanel.updateHorseList(horses); // update betting dropdown
         });
 
-        // set up panel elements
-        // left is track and horse config
-        JPanel leftPanel = new JPanel();
-        leftPanel.setLayout(new GridLayout(2, 1));
-        leftPanel.add(trackConfigPanel);
-        leftPanel.add(horseConfigPanel);
-        add(leftPanel, BorderLayout.WEST); // <<— Add it back in
-
-        // middle split between race arena and stats
-        JSplitPane centerSplitPane = new JSplitPane(
-            JSplitPane.HORIZONTAL_SPLIT,
-            raceArenaPanel,
-            statisticsPanel
-        );
-        centerSplitPane.setResizeWeight(0.7); // 70% race, 30% stats
-        add(centerSplitPane, BorderLayout.CENTER);
-
-        // BOTTOM: Start button
-        JButton startButton = new JButton("Start Race");
-        startButton.addActionListener(e -> {
-            new Thread(this::runTextRace).start(); // run in separate thread
-        });
-        add(startButton, BorderLayout.SOUTH);
-
-        // final setup
+        // final 
         setVisible(true);
     }
 
-    // create the race actions
     private void runTextRace() {
         int trackLength = trackConfigPanel.getTrackLength();
         raceArenaPanel.clearDisplay();
+        statisticsPanel.clearStats();
 
         boolean finished = false;
         int timeSteps = 0;
@@ -101,13 +95,12 @@ public class HorseRaceGUI extends JFrame {
                     finished = false;
                 }
 
-                // build horse lane
                 StringBuilder lane = new StringBuilder("|");
                 for (int i = 0; i < trackLength; i++) {
                     if (i == h.getDistanceTravelled() && !h.hasFallen()) {
                         lane.append(h.getSymbol());
                     } else if (h.hasFallen() && i == h.getDistanceTravelled()) {
-                        lane.append("❌");
+                        lane.append("X");
                     } else {
                         lane.append(" ");
                     }
@@ -117,12 +110,13 @@ public class HorseRaceGUI extends JFrame {
             }
 
             raceArenaPanel.updateRaceDisplay(frame.toString());
+
             try {
-                Thread.sleep(250); // control animation speed
+                Thread.sleep(250);
             } catch (InterruptedException ignored) {}
         }
 
-        // declare winner
+        // determine winner
         Horse winner = horses.stream()
             .filter(h -> !h.hasFallen())
             .max(java.util.Comparator.comparingInt(Horse::getDistanceTravelled))
@@ -134,25 +128,12 @@ public class HorseRaceGUI extends JFrame {
             JOptionPane.showMessageDialog(this, "All horses fell! No winner.");
         }
 
-        // Show statistics
-        statisticsPanel.clearStats();
+        // update stats
         for (Horse h : horses) {
             statisticsPanel.showStatsForHorse(h, timeSteps);
         }
 
+        // reset horese
         horses.forEach(Horse::goBackToStart);
-    }
-
-    // getters
-    public TrackConfigPanel getTrackConfigPanel() {
-        return trackConfigPanel;
-    }
-
-    public HorseConfigPanel getHorseConfigPanel() {
-        return horseConfigPanel;
-    }
-
-    public RaceArenaPanel getRaceArenaPanel() {
-        return raceArenaPanel;
     }
 }
