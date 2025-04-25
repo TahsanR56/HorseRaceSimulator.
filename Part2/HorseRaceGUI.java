@@ -65,6 +65,16 @@ public class HorseRaceGUI extends JFrame {
             bettingPanel.updateHorseList(horses); // update betting dropdown
         });
 
+        // remove horses
+        horseConfigPanel.getRemoveHorseButton().addActionListener(e -> {
+            if (!horses.isEmpty()) {
+                Horse removed = horses.remove(horses.size() - 1);
+                raceArenaPanel.appendRaceLine("Removed horse: " + removed.getName());
+            } else {
+                raceArenaPanel.appendRaceLine("No horses to remove.");
+            }
+        });
+
         // final 
         setVisible(true);
     }

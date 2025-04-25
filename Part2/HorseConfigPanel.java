@@ -17,6 +17,8 @@ public class HorseConfigPanel extends JPanel {
     private JComboBox<String> symbolBox;
     private JComboBox<String> gearBox;
     private JButton addHorseButton;
+    private JButton removeHorseButton;
+
 
     public HorseConfigPanel() {
         setBorder(BorderFactory.createTitledBorder("Horse Customisation"));
@@ -50,6 +52,10 @@ public class HorseConfigPanel extends JPanel {
         // add Horse Button
         addHorseButton = new JButton("Add Horse");
         add(addHorseButton);
+
+        // remove Horse Button
+        removeHorseButton = new JButton("Remove Horse");
+        add(removeHorseButton);
     }
 
     // getters
@@ -76,4 +82,9 @@ public class HorseConfigPanel extends JPanel {
     public JButton getAddHorseButton() {
         return addHorseButton;
     }
+    
+    public JButton getRemoveHorseButton() {
+        return removeHorseButton;
+    }
+    
 }
