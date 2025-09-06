@@ -7,7 +7,7 @@
 
 ## Project Overview
 
-This is a Java-based program that simulates a horse race. It was created as coursework for the ECS414U OOP module. It includes fully encapsulated horse objects, a confidence-based race mechanism, and two separate parts:
+This is a Java-based program that simulates a horse race. It includes fully encapsulated horse objects, a confidence-based race mechanism, and two separate parts:
 
 - **Part 1**: A text-based horse racing simulation, fully animated via the CLI.
 - **Part 2**: A fully-featured **Graphical User Interface (GUI)** version with race stats, betting, and dynamic horse configuration.
